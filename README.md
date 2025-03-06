@@ -1,4 +1,7 @@
 cd backend
 
 node server
-npm run admin
+
+cd backend
+
+node admin-server

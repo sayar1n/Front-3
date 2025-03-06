@@ -91,6 +91,7 @@
                             <h3>${product.name}</h3>
                             <p>Цена: ${product.price} руб.</p>
                             <p>${product.description}</p>
+                            <p>Категории: ${product.categories ? product.categories.join(', ') : 'Нет категорий'}</p>
                             <button onclick="editProduct(${product.id})">Редактировать</button>
                             <button onclick="deleteProduct(${product.id})">Удалить</button>
                         `;
@@ -104,11 +105,17 @@
             const name = prompt('Введите новое название товара:');
             const price = prompt('Введите новую цену:');
             const description = prompt('Введите новое описание:');
+            const categories = prompt('Введите категории через запятую:');
 
             fetch(`${API_URL}/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, price: Number(price), description })
+                body: JSON.stringify({ 
+                    name, 
+                    price: Number(price), 
+                    description,
+                    categories: categories ? categories.split(',').map(cat => cat.trim()).filter(cat => cat.length > 0) : undefined
+                })
             })
             .then(() => fetchProducts())
             .catch(error => console.error('Ошибка при редактировании товара:', error));
