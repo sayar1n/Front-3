@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог товаров</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; }
+        #products { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .product { border: 1px solid #ddd; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Каталог товаров</h1>
+    <div id="categoryFilter" style="margin-bottom: 20px; text-align: center;">
+        <label>Категория: </label>
+        <select id="categorySelect" onchange="filterByCategory()">
+            <option value="all">Все категории</option>
+        </select>
+    </div>
+    <div id="products"></div>
+
+    <script>
+        let allProducts = [];
+
+        function filterByCategory() {
+            const selectedCategory = document.getElementById('categorySelect').value;
+            const productsContainer = document.getElementById('products');
+            productsContainer.innerHTML = '';
+
+            const filteredProducts = selectedCategory === 'all' 
+                ? allProducts 
+                : allProducts.filter(product => product.categories && product.categories.includes(selectedCategory));
+
+            filteredProducts.forEach(product => {
+                const productElement = document.createElement('div');
+                productElement.className = 'product';
+                productElement.innerHTML = `
+                    <h3>${product.name}</h3>
+                    <p>Цена: ${product.price} руб.</p>
+                    <p>${product.description}</p>
+                `;
+                productsContainer.appendChild(productElement);
+            });
+        }
+
+        fetch('http://localhost:3000/api/products')
+            .then(response => response.json())
+            .then(products => {
+                allProducts = products;
+                
+                // Собираем уникальные категории
+                const categories = new Set();
+                products.forEach(product => {
+                    if (product.categories) {
+                        product.categories.forEach(category => categories.add(category));
+                    }
+                });
+
+                // Заполняем выпадающий список категорий
+                const categorySelect = document.getElementById('categorySelect');
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+
+                // Показываем все товары изначально
+                filterByCategory();
+            })
+            .catch(error => console.error('Ошибка при загрузке товаров:', error));
+    </script>
+</body>
+</html>

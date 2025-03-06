@@ -1,0 +1,65 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f5f5f5;
+}
+
+.product-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.product-card h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.price {
+    font-size: 1.2em;
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.categories {
+    font-size: 0.9em;
+    color: #666;
+}
+
+button {
+    margin-right: 10px;
+    padding: 5px 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+form input, form textarea {
+    display: block;
+    margin-bottom: 10px;
+    padding: 8px;
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+form button {
+    background-color: #27ae60;
+}
+
+form button:hover {
+    background-color: #219653;
+}

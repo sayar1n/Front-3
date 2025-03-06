@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ панель</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; }
+        form { margin-bottom: 20px; }
+        input, textarea { width: 100%; margin-bottom: 10px; }
+        #products { border-top: 1px solid #ddd; padding-top: 20px; }
+        .product { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Админ панель</h1>
+    <div style="margin-bottom: 10px;">
+        <button onclick="addProductForm()">Добавить ещё форму</button>
+    </div>
+    <div id="productForms">
+        <form class="productForm">
+            <input type="text" class="name" placeholder="Название товара" required>
+            <input type="number" class="price" placeholder="Цена" required>
+            <textarea class="description" placeholder="Описание" required></textarea>
+            <input type="text" class="categories" placeholder="Категории (через запятую)" required>
+        </form>
+    </div>
+    <button onclick="submitProducts()" style="margin: 10px 0;">Добавить товары</button>
+    <div id="products"></div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api/products';
+
+        function addProductForm() {
+            const form = document.createElement('form');
+            form.className = 'productForm';
+            form.innerHTML = `
+                <input type="text" class="name" placeholder="Название товара" required>
+                <input type="number" class="price" placeholder="Цена" required>
+                <textarea class="description" placeholder="Описание" required></textarea>
+                <input type="text" class="categories" placeholder="Категории (через запятую)" required>
+                <button type="button" onclick="this.parentElement.remove()" style="background-color: #ff4444; color: white;">Удалить форму</button>
+            `;
+            document.getElementById('productForms').appendChild(form);
+        }
+
+        function submitProducts() {
+            const forms = document.getElementsByClassName('productForm');
+            const products = Array.from(forms).map(form => ({
+                name: form.querySelector('.name').value,
+                price: Number(form.querySelector('.price').value),
+                description: form.querySelector('.description').value,
+                categories: form.querySelector('.categories').value
+                    .split(',')
+                    .map(cat => cat.trim())
+                    .filter(cat => cat.length > 0)
+            }));
+
+            Promise.all(products.map(product =>
+                fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(product)
+                })
+            ))
+            .then(() => {
+                fetchProducts();
+                document.getElementById('productForms').innerHTML = `
+                    <form class="productForm">
+                        <input type="text" class="name" placeholder="Название товара" required>
+                        <input type="number" class="price" placeholder="Цена" required>
+                        <textarea class="description" placeholder="Описание" required></textarea>
+                        <input type="text" class="categories" placeholder="Категории (через запятую)" required>
+                    </form>
+                `;
+            })
+            .catch(error => console.error('Ошибка при добавлении товаров:', error));
+        }
+
+        function fetchProducts() {
+            fetch(API_URL)
+                .then(response => response.json())
+                .then(products => {
+                    const productsContainer = document.getElementById('products');
+                    productsContainer.innerHTML = '';
+                    products.forEach(product => {
+                        const productElement = document.createElement('div');
+                        productElement.className = 'product';
+                        productElement.innerHTML = `
+                            <h3>${product.name}</h3>
+                            <p>Цена: ${product.price} руб.</p>
+                            <p>${product.description}</p>
+                            <button onclick="editProduct(${product.id})">Редактировать</button>
+                            <button onclick="deleteProduct(${product.id})">Удалить</button>
+                        `;
+                        productsContainer.appendChild(productElement);
+                    });
+                })
+                .catch(error => console.error('Ошибка при загрузке товаров:', error));
+        }
+
+        function editProduct(id) {
+            const name = prompt('Введите новое название товара:');
+            const price = prompt('Введите новую цену:');
+            const description = prompt('Введите новое описание:');
+
+            fetch(`${API_URL}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, price: Number(price), description })
+            })
+            .then(() => fetchProducts())
+            .catch(error => console.error('Ошибка при редактировании товара:', error));
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Вы уверены, что хотите удалить этот товар?')) {
+                fetch(`${API_URL}/${id}`, { method: 'DELETE' })
+                    .then(() => fetchProducts())
+                    .catch(error => console.error('Ошибка при удалении товара:', error));
+            }
+        }
+
+        fetchProducts();
+    </script>
+</body>
+</html>

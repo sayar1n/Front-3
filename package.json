@@ -1,0 +1,14 @@
+{
+  "name": "shop-practice",
+  "version": "1.0.0",
+  "description": "Практическое задание 3",
+  "scripts": {
+    "start": "node backend/server.js",
+    "admin": "node backend/admin-server.js"
+  },
+  "dependencies": {
+    "axios": "^1.8.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
