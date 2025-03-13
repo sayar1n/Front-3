@@ -129,6 +129,8 @@ app.get('/', (req, res) => {
  *                 type: string
  *               price:
  *                 type: number
+ *               description:
+ *                 type: string
  *               categories:
  *                 type: array
  *                 items:
